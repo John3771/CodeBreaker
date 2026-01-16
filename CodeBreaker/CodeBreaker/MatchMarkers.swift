@@ -17,6 +17,7 @@ enum Match {
 struct MatchMarkers: View {
     var matches: [Match]
     
+<<<<<<< HEAD
     private var sortedMatches: [Match] {
         matches.sorted { match1, match2 in
             switch (match1, match2) {
@@ -25,10 +26,23 @@ struct MatchMarkers: View {
             case (.inexact, _): return true
             case (_, .inexact): return false
             default: return false
+=======
+    var body: some View {
+        HStack {
+            VStack {
+                matchMarker(peg: 0)
+                matchMarker(peg: 1)
+            }
+            
+            VStack {
+                matchMarker(peg: 2)
+                matchMarker(peg: 3)
+>>>>>>> parent of 5a810f7 (End of fourth lecture w\o hw)
             }
         }
     }
     
+<<<<<<< HEAD
     var body: some View {
         let columnCount = (matches.count + 1) / 2
         HStack(spacing: 4) {
@@ -64,6 +78,14 @@ struct MatchMarkers: View {
             }
         }
         .aspectRatio(1, contentMode: .fit)
+=======
+    func matchMarker(peg: Int) -> some View {
+        let exactCount: Int = matches.count(where: { match in match == .exact})
+        let foundCount: Int = matches.count(where: { match in match != .nomatch})
+        return Circle()
+            .fill(exactCount > peg ? Color.primary : Color.clear)
+            .strokeBorder(foundCount > peg ? Color.primary : Color.clear, lineWidth: 2).aspectRatio(1, contentMode: .fit)
+>>>>>>> parent of 5a810f7 (End of fourth lecture w\o hw)
     }
 }
 
