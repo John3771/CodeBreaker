@@ -5,7 +5,6 @@
 //  Created by Gleb on 11.01.2026.
 //
 
-
 import SwiftUI
 
 enum Match {
@@ -15,8 +14,10 @@ enum Match {
 }
 
 struct MatchMarkers: View {
-    var matches: [Match]
+    // MARK: Data In
+    let matches: [Match]
     
+    // MARK: - Body
     var body: some View {
         HStack {
             VStack {
@@ -32,16 +33,18 @@ struct MatchMarkers: View {
     
     func matchMarker(peg: Int) -> some View {
         let exactCount = matches.count { $0 == .exact }
-        let foundCount = matches.count { $0 == .exact }
-        let totalMatches = exactCount + foundCount
+        let foundCount = matches.count { $0 != .nomatch }
         
         return Circle()
             .fill(exactCount > peg ? Color.primary : Color.clear)
-            .strokeBorder(totalMatches > peg ? Color.primary : Color.clear, lineWidth: 1)
+            .strokeBorder(foundCount > peg ? Color.primary : Color.clear, lineWidth: 1)
             .aspectRatio(1, contentMode: .fit)
     }
 }
 
 #Preview {
-    MatchMarkers(matches: [.exact, .inexact, .nomatch])
+    ScrollView {
+        //    MatchMarkers(matches: [.exact, .inexact, .nomatch])
+        MatchMarkers(matches: [.exact, .exact,.inexact,.inexact,])
+    }
 }

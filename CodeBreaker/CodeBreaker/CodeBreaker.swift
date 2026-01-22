@@ -9,8 +9,12 @@ import SwiftUI
 
 typealias Peg = Color
 
+extension Peg {
+    static let missing = Color.clear
+}
+
 struct CodeBreaker {
-    var masterCode: Code = Code(kind: .master)
+    var masterCode: Code = Code(kind: .master(isHidden: true))
     var guess: Code = Code(kind: .guess)
     var attempts: [Code] = []
     let pegChoices: [Peg]
@@ -21,67 +25,34 @@ struct CodeBreaker {
         print(masterCode)
     }
     
+    var isOver: Bool {
+        attempts.last?.pegs == masterCode.pegs
+    }
+    
     mutating func attemptGuess() {
         var attempt = guess
         attempt.kind = .attempt(guess.match(against: masterCode))
         attempts.append(attempt)
+        guess.reset()
+        if isOver {
+            masterCode.kind = .master(isHidden: false)
+        }
     }
     
+    mutating func setGuessPeg(_ peg: Peg, at index: Int) {
+        guard guess.pegs.indices.contains(index) else { return }
+        guess.pegs[index] = peg
+    }
+   
     mutating func changeGuessPeg(at index: Int) {
         let existingPeg = guess.pegs[index]
         if let indexOfExistingPegInPegChoices = pegChoices.firstIndex(of: existingPeg) {
             let newPeg = pegChoices[(indexOfExistingPegInPegChoices + 1) % pegChoices.count]
             guess.pegs[index] = newPeg
         } else {
-            guess.pegs[index] = pegChoices.first ?? Code.missing
+            print(Thread.current)
+            guess.pegs[index] = pegChoices.first ?? Code.missingPeg
         }
-    }
-}
-
-struct Code {
-    var kind: Kind
-    var pegs: [Peg] = Array(repeating: Code.missing, count: 4)
-    
-    static let missing: Peg = .clear
-    
-    enum Kind: Equatable {
-        case master
-        case guess
-        case attempt([Match])
-        case unknown
-    }
-    
-    mutating func randomize(from pegChoices: [Peg]) {
-        for index in pegChoices.indices {
-            pegs[index] = pegChoices.randomElement() ?? Code.missing
-        }
-    }
-    
-    var matches: [Match] {
-        switch kind {
-        case .attempt(let matches): return matches
-        default: return []
-        }
-    }
-    
-    func match(against otherCode: Code) -> [Match] {
-        var results: [Match] = Array(repeating: .nomatch, count: pegs.count)
-        var pegsToMatch = otherCode.pegs
-        for index in pegs.indices.reversed() {
-            if pegsToMatch.count > index, pegsToMatch[index] == pegs[index] {
-                results[index] = .exact
-                pegsToMatch.remove(at: index)
-            }
-        }
-        for index in pegs.indices {
-            if results[index] != .exact {
-                if let matchIndex = pegsToMatch.firstIndex(of: pegs[index]) {
-                    results[index] = .inexact
-                    pegsToMatch.remove(at: matchIndex)
-                }
-            }
-        }
-        return results
     }
 }
 
